@@ -23,8 +23,9 @@ MVP B2B para que equipos de operaciones, calidad y control interno registren hal
 1. Crea un proyecto gratuito de Supabase.
 2. En **SQL Editor**, ejecuta `supabase/schema.sql`. Esta configuración permite lectura y escritura anónima para una demostración y, por eso, los datos no son privados.
 3. Copia `config.example.js` como `config.js` y completa `SUPABASE_URL` y `SUPABASE_PUBLISHABLE_KEY` desde **Connect** o **Project Settings > API Keys**. Para este MVP estático, `config.js` se incluye en el repositorio y contiene solo la clave pública publishable, diseñada para uso desde el navegador. Nunca incluyas `service_role` ni una secret key en el navegador ni en GitHub. La clave no es un secreto, pero el SQL de demostración permite acceso anónimo a los registros: utiliza únicamente datos ficticios.
-4. Sirve de nuevo el sitio con Live Server. El indicador superior debe mostrar **Supabase conectado**. La tabla empezará vacía; crea una acción para comprobar el guardado remoto.
-5. No uses políticas anónimas con información real. Para producción activa Supabase Auth y aplica políticas RLS que limiten cada operación a filas de la organización autenticada.
+4. En **SQL Editor**, ejecuta `supabase/seed.sql` para cargar los tres registros ficticios de ejemplo. La consulta es segura de repetir y no altera otras filas.
+5. Sirve de nuevo el sitio con Live Server. El indicador superior debe mostrar **Supabase conectado**. Crea una acción para comprobar el guardado remoto.
+6. No uses políticas anónimas con información real. Para producción activa Supabase Auth y aplica políticas RLS que limiten cada operación a filas de la organización autenticada.
 
 ## Publicar en GitHub y Vercel
 

@@ -7,7 +7,7 @@ const sampleActions = [
   { id: crypto.randomUUID(), title: "Cerrar observación de control de accesos", description: "Confirmar revisión trimestral de permisos del equipo.", owner: "María Paredes", priority: "Alta", dueDate: futureDate(-1), status: "Completada", createdAt: new Date().toISOString() },
 ];
 
-let actions = loadLocalActions();
+let actions = [];
 let supabase = null;
 const elements = Object.fromEntries([
   ["actionsBody", "actions-body"],
@@ -47,19 +47,31 @@ function loadLocalActions() {
 async function connectDatabase() {
   try {
     const { SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY } = await import("./config.js");
-    if (!SUPABASE_URL.includes("supabase.co") || SUPABASE_PUBLISHABLE_KEY.startsWith("TU_")) return;
+    if (!SUPABASE_URL.includes("supabase.co") || SUPABASE_PUBLISHABLE_KEY.startsWith("TU_")) {
+      loadDemoMode();
+      return;
+    }
     const { createClient } = await import("https://esm.sh/@supabase/supabase-js@2");
-    supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
-    const { data, error } = await supabase.from("actions").select("*").order("created_at", { ascending: false });
+    const client = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+    const { data, error } = await client.from("actions").select("*").order("created_at", { ascending: false });
     if (error) throw error;
+    supabase = client;
     actions = data.map(fromDatabase);
     elements.connectionLabel.textContent = "Supabase conectado";
     document.querySelector(".connection-pill").classList.add("connected");
     render();
   } catch (error) {
     if (error?.code !== "ERR_MODULE_NOT_FOUND") console.error("No se pudo conectar a Supabase; se mantiene el modo local.", error);
-    elements.connectionLabel.textContent = "Modo demostración";
+    loadDemoMode();
   }
+}
+
+function loadDemoMode() {
+  supabase = null;
+  actions = loadLocalActions();
+  elements.connectionLabel.textContent = "Modo demostración";
+  document.querySelector(".connection-pill").classList.remove("connected");
+  render();
 }
 
 function fromDatabase(row) {
@@ -261,5 +273,4 @@ elements.search.addEventListener("input", render);
 elements.statusFilter.addEventListener("change", render);
 document.getElementById("refresh").addEventListener("click", () => supabase ? connectDatabase() : render());
 
-render();
 connectDatabase();
